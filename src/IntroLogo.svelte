@@ -96,13 +96,13 @@
 	<div class="container {moveAndShrink ? 'shrink' : ''}">
 		<!-- Grayscale image -->
 		<img
-			src="/images/grey_smg.png"
+			src="images/grey_smg.png"
 			alt="SMG Greyscale Logo"
 			class="grayscale-image"
 		/>
 		<!-- Color image -->
 		<img
-			src="/images/smg_logo.png"
+			src="images/smg_logo.png"
 			alt="SMG Logo"
 			class="color-image {animationStarted ? 'revealed' : ''}"
 		/>
