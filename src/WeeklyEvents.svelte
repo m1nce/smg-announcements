@@ -1,52 +1,73 @@
 <script>
-    let terminalContent = `(base) smg@macbook smg-announcements % python
-  Python 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:54:21) [Clang 16.0.6 ] on darwin
-  Type "help", "copyright", "credits" or "license" for more information.\n>>> `; // Pre-existing Python information
-    const commands = [
-      'import cv2',
-      'import os',
-      'def display_pngs(folder_path):',
-      '    for filename in os.listdir(folder_path):',
-      '        if filename.endswith(".png"):',
-      '            img_path = os.path.join(folder_path, filename)',
-      '            img = cv2.imread(img_path)',
-      '            cv2.imshow(filename, img)',
-      '            cv2.waitKey(0)',
-      '            cv2.destroyAllWindows()',
-      'folder_path = "./Events"',
-      'display_pngs(folder_path)',
-    ]; // Commands to simulate typing
-    let typingIndex = 0; // Tracks the current command being typed
-    let charIndex = 0; // Tracks the character within the current command
-    const typingDelay = 50; // Delay between typing each character
-    const lineDelay = 500; // Delay between commands
-  
-    // Start typing commands after component mounts
-    $: if (typingIndex === 0) {
-      typeNextCommand();
+  import { onMount } from "svelte";
+
+  let typedContent = `(base) smg@macbook smg-announcements % python
+Python 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:54:21) [Clang 16.0.6 ] on darwin
+Type "help", "copyright", "credits" or "license" for more information.\n>>> `;
+
+  const commands = [
+    "import cv2",
+    "import os",
+    "def display_pngs(folder_path):",
+    "    for filename in os.listdir(folder_path):",
+    "        if filename.endswith('.png'):",
+    "            img_path = os.path.join(folder_path, filename)",
+    "            img = cv2.imread(img_path)",
+    "            cv2.imshow(filename, img)",
+    "            cv2.waitKey(0)",
+    "            cv2.destroyAllWindows()",
+    "folder_path = './Events'",
+    "display_pngs(folder_path)"
+  ];
+
+  let typingIndex = 0;
+  let charIndex = 0;
+  const typingDelay = 20; // Typing speed per character
+  const lineDelay = 500; // Delay between lines
+  const closeDelay = 2000; // Delay before closing terminal
+
+  // Detect if a command is indented
+  const isIndented = (command) => command.startsWith("    ");
+
+  const typeNextCommand = () => {
+    if (typingIndex < commands.length) {
+      const command = commands[typingIndex];
+      const prompt = isIndented(command) ? "... " : ">>> ";
+      typedContent += prompt; // Add appropriate prompt
+      typeCharacters(command, 0); // Type the command
+    } else {
+      // Terminal closing animation
+      setTimeout(closeTerminal, closeDelay);
     }
-  
-    function typeNextCommand() {
-      if (typingIndex < commands.length) {
-        const command = commands[typingIndex];
-        typeCharacters(command, charIndex);
-      }
+  };
+
+  const typeCharacters = (command, index) => {
+    if (index < command.length) {
+      typedContent += command[index]; // Add characters progressively
+      charIndex++;
+      setTimeout(() => typeCharacters(command, charIndex), typingDelay);
+    } else {
+      // When command typing finishes, add newline and prompt for next command
+      typedContent += "\n";
+      typingIndex++;
+      charIndex = 0;
+      setTimeout(typeNextCommand, lineDelay);
     }
-  
-    function typeCharacters(command, index) {
-      if (index < command.length) {
-        terminalContent += command[index]; // Add one character at a time
-        charIndex++;
-        setTimeout(() => typeCharacters(command, charIndex), typingDelay); // Continue typing
-      } else {
-        // Command is fully typed
-        terminalContent += '\n>>> '; // Add new Python prompt
-        typingIndex++;
-        charIndex = 0; // Reset character index for the next command
-        setTimeout(typeNextCommand, lineDelay); // Delay before typing the next command
-      }
-    }
+  };
+
+  const closeTerminal = () => {
+    const terminal = document.querySelector(".terminal");
+    terminal.style.opacity = 0; // Fade out animation
+    setTimeout(() => {
+      terminal.style.display = "none";
+    }, 300);
+  };
+
+  onMount(() => {
+    typeNextCommand();
+  });
 </script>
+
 
 <style>
     .terminal {
@@ -146,16 +167,15 @@
 </style>
   
 <div class="terminal">
-    <div class="terminal-header">
-        <div class="terminal-buttons">
-        <div class="terminal-button"></div>
-        <div class="terminal-button yellow"></div>
-        <div class="terminal-button green"></div>
-        </div>
-        <span style="margin-left: 10px;">Terminal</span>
+  <div class="terminal-header">
+    <div class="terminal-buttons">
+      <div class="terminal-button"></div>
+      <div class="terminal-button yellow"></div>
+      <div class="terminal-button green"></div>
     </div>
-    <div class="terminal-content">
-        <p>{terminalContent}</p>
-    </div>
+    <span style="margin-left: 10px;">Terminal</span>
+  </div>
+  <div class="terminal-content">
+    <pre>{typedContent}</pre>
+  </div>
 </div>
-  

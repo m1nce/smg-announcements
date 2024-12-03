@@ -237,7 +237,7 @@ What's something you're looking forward to this winter break?\n`;
 
     {#if showImage}
         <!-- Render the image only if showImage is true -->
-        <img src="/images/intro.jpg" alt="intro" width="25%" on:click={hideImage} />
+        <img src="images/intro.jpg" alt="intro" width="25%" on:click={hideImage} />
     {/if}
 
     {#if showReplacement}

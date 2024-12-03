@@ -40,7 +40,7 @@
       height: 100vh;
       width: 100vw;
       position: relative;
-      z-index: 0; /* Ensure it does dn't interfere with child stacking */
+      z-index: 0; /* Ensure it does doesn't interfere with child stacking */
       overflow: visible; /* Prevent clipping of child elements */
   }
 </style>
