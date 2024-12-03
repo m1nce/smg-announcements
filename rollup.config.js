@@ -5,6 +5,7 @@ import terser from '@rollup/plugin-terser';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import css from 'rollup-plugin-css-only';
+import copy from 'rollup-plugin-copy';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -44,15 +45,10 @@ export default {
 				dev: !production
 			}
 		}),
-		// we'll extract any component CSS out into
-		// a separate file - better for performance
+		// Extract component CSS into a separate file
 		css({ output: 'bundle.css' }),
 
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
+		// Resolve node modules
 		resolve({
 			browser: true,
 			dedupe: ['svelte'],
@@ -60,16 +56,20 @@ export default {
 		}),
 		commonjs(),
 
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
+		// Copy static assets from the public folder to the build folder
+		copy({
+			targets: [
+				{ src: 'public/*', dest: 'build/' }
+			]
+		}),
+
+		// Start a dev server in development mode
 		!production && serve(),
 
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('public'),
+		// Enable live reloading in development mode
+		!production && livereload('build'),
 
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
+		// Minify the output in production mode
 		production && terser()
 	],
 	watch: {
