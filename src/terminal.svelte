@@ -18,41 +18,43 @@ remote: Counting objects: 100% (3/3), done.
 remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0`; // Simulated output for cloning
 
   function typeCommand() {
-    let typedText = '';
-    const fullText = commands[currentCommandIndex];
-    let index = 0;
+      let typedText = '';
+      const fullText = commands[currentCommandIndex];
+      let index = 0;
 
-    const interval = setInterval(() => {
-      if (index < fullText.length) {
-        typedText += fullText[index]; // Add one character at a time
-        index++;
-        terminalContent += fullText[index - 1]; // Update terminal content
-      } else {
-        clearInterval(interval); // Stop the interval once all text is typed
-
-        if (currentCommandIndex === 0) {
-          // Simulate cloning output after "git clone"
-          setTimeout(() => {
-            terminalContent += `\n${cloneOutput}\n(base) smg@macbook ~ $ `;
-            currentCommandIndex++; // Move to the next command
-            setTimeout(typeCommand, startDelay); // Start typing the next command
-          }, 1000); // Delay before showing cloning output
-        } else {
-          currentCommandIndex++; // Move to the next command
-          if (currentCommandIndex < commands.length) {
-            // Add a newline and prefill prompt before typing the next command
-            terminalContent += `\n(base) smg@macbook ~ $ `;
-            setTimeout(typeCommand, startDelay); // Start typing the next command
+      const interval = setInterval(() => {
+          if (index < fullText.length) {
+              typedText += fullText[index]; // Add one character at a time
+              index++;
+              terminalContent += fullText[index - 1]; // Update terminal content
           } else {
-            // Notify parent that the terminal has finished
-            setTimeout(() => {
-              dispatch('hideTerminal'); // Dispatch event to hide the terminal
-              console.log('Terminal finished typing commands');
-            }, 1000); // Delay before dispatching the event
+              clearInterval(interval); // Stop the interval once all text is typed
+
+              if (currentCommandIndex === 0) {
+                  // Simulate cloning output after "git clone"
+                  setTimeout(() => {
+                      terminalContent += `\n${cloneOutput}\n(base) smg@macbook ~ $ `;
+                      currentCommandIndex++; // Move to the next command
+                      setTimeout(typeCommand, startDelay); // Start typing the next command
+                  }, 1000); // Delay before showing cloning output
+              } else {
+                  currentCommandIndex++; // Move to the next command
+                  if (currentCommandIndex < commands.length) {
+                      // Add a newline and set the prompt based on the command index
+                      terminalContent += `\n(base) smg@macbook ${
+                          currentCommandIndex === 1 ? '~' : 'smg-announcements'
+                      } $ `;
+                      setTimeout(typeCommand, startDelay); // Start typing the next command
+                  } else {
+                      // Notify parent that the terminal has finished
+                      setTimeout(() => {
+                          dispatch('hideTerminal'); // Dispatch event to hide the terminal
+                          console.log('Terminal finished typing commands');
+                      }, 1000); // Delay before dispatching the event
+                  }
+              }
           }
-        }
-      }
-    }, typingDelay);
+      }, typingDelay);
   }
 
   // Start typing the first command after the terminal is shown

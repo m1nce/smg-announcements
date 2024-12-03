@@ -1,0 +1,15 @@
+(base) smg@macbook smg-announcements % python
+Python 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:54:21) [Clang 16.0.6 ] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import cv2
+>>> import os
+>>> def display_pngs(folder_path):
+...     for filename in os.listdir(folder_path):
+...         if filename.endswith(".png"):
+...             img_path = os.path.join(folder_path, filename)
+...             img = cv2.imread(img_path)
+...             cv2.imshow(filename, img)
+...             cv2.waitKey(0)  # Wait for key press
+...             cv2.destroyAllWindows()
+>>> folder_path = "./Events"
+>>> display_pngs(folder_path)

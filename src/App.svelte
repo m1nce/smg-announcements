@@ -1,14 +1,16 @@
 <script>
-  import IntroLogo from './intro_logo.svelte';
-  import Terminal from './terminal.svelte';
-  import Welcome from './welcome.svelte';
+  import IntroLogo from './IntroLogo.svelte';
+  import Terminal from './Terminal.svelte';
+  import Welcome from './Welcome.svelte';
+  import WeeklyEvents from './WeeklyEvents.svelte';
 
   let showTerminal = false; // Controls terminal visibility
   let introCompleted = false; // Tracks whether IntroLogo has finished
   let showWelcome = false; // Controls announcement visibility
+  let showWeeklyEvents = false; // Controls weekly events visibility
 
   function showTerminalOnClick() {
-    if (introCompleted && !showWelcome) { 
+    if (introCompleted && !showWelcome && !showWeeklyEvents) { 
       // Only show the terminal if the intro is completed and welcome screen is not active
       showTerminal = true;
     }
@@ -22,6 +24,11 @@
     showTerminal = false; // Hide terminal
     showWelcome = true; // Show announcements
   }
+
+  function handleWelcomeDone() {
+    showWelcome = false; 
+    showWeeklyEvents = true;
+  }
 </script>
 
 <style>
@@ -33,7 +40,7 @@
       height: 100vh;
       width: 100vw;
       position: relative;
-      z-index: 0; /* Ensure it doesn't interfere with child stacking */
+      z-index: 0; /* Ensure it does dn't interfere with child stacking */
       overflow: visible; /* Prevent clipping of child elements */
   }
 </style>
@@ -49,6 +56,11 @@
 
   {#if showWelcome}
     <!-- Render the Welcome Screen -->
-    <Welcome />
+    <Welcome on:done={handleWelcomeDone}/>
+  {/if}
+
+  {#if showWeeklyEvents}
+    <!-- Render the Weekly Events -->
+    <WeeklyEvents />
   {/if}
 </div>

@@ -1,9 +1,12 @@
 <script>
-    let showImage = true; // Controls image visibility
-    let showReplacement = false; // Controls terminal visibility with replacement content
-    let terminalContent = `Last login: Tues Dec 3 12:10:57 on ttys001\n(base) smg@macbook ~ $ git clone https://github.com/m1nce/smg-announcements.git\nCloning into 'smg-announcements'...\nremote: Enumerating objects: 3, done.\nremote: Counting objects: 100% (3/3), done.\nremote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0\n(base) smg@macbook ~ $ cd smg-announcements\n(base) smg@macbook ~ $ bash intro.sh\n(base) smg@macbook ~ $ `; // Initial terminal content
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
 
-    const finalCommand = `cat question_of_the_week.txt`; // New command to type
+    let showImage = true;
+    let showReplacement = false;
+    let terminalContent = `Last login: Tues Dec 3 12:10:57 on ttys001\n(base) smg@macbook ~ $ git clone https://github.com/m1nce/smg-announcements.git\nCloning into 'smg-announcements'...\nremote: Enumerating objects: 3, done.\nremote: Counting objects: 100% (3/3), done.\nremote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0\n(base) smg@macbook ~ $ cd smg-announcements\n(base) smg@macbook smg-announcements $ bash intro.sh\n(base) smg@macbook smg-announcements $ `;
+
+    const finalCommand = `cat question_of_the_week.txt`;
     const question = `
 The question of the week is: 
 What's something you're looking forward to this winter break?\n`;
@@ -16,33 +19,37 @@ What's something you're looking forward to this winter break?\n`;
         "- Hong Kong and no school",
         "- Taiwan and skiing",
         "- Seeing Christmas lights"
-    ]; // List of bullet points
+    ];
 
-    let typingIndex = 0; // Tracks typing character position
-    const typingDelay = 50; // Delay between each character in milliseconds
-    const questionDelay = 1000; // Delay before showing the question
-    const bulletDelay = 500; // Delay between each bullet point
+    let typingIndex = 0;
+    const typingDelay = 50;
+    const questionDelay = 1000;
+    const postQuestionDelay = 3000;
+    const bulletDelay = 1000;
+    let allowClear = false;
+    let clearCommandIndex = 0;
+    let showCursor = true;
 
     function hideImage() {
-        showImage = false; // Hide the image
-        showReplacement = true; // Show the terminal replacement
+        showImage = false;
+        showReplacement = true;
         setTimeout(() => {
-            typeFinalCommand(); // Start typing the final command
-        }, 1000); // Delay before typing starts
+            typeFinalCommand();
+        }, 1000);
     }
 
     function typeFinalCommand() {
         if (typingIndex < finalCommand.length) {
-            // Add one character at a time
             terminalContent += finalCommand[typingIndex];
             typingIndex++;
-            setTimeout(typeFinalCommand, typingDelay); // Continue typing
+            setTimeout(typeFinalCommand, typingDelay);
         } else {
-            // Final command is fully typed, add a new line and display the question with a delay
             terminalContent += `\n`;
             setTimeout(() => {
-                terminalContent += question; // Append the question
-                typeBulletPoints(); // Start displaying bullet points
+                terminalContent += question;
+                setTimeout(() => {
+                    typeBulletPoints();
+                }, postQuestionDelay); // Delay specifically after showing the question
             }, questionDelay);
         }
     }
@@ -50,15 +57,48 @@ What's something you're looking forward to this winter break?\n`;
     function typeBulletPoints(index = 0) {
         if (index < bulletPoints.length) {
             setTimeout(() => {
-                terminalContent += `\n${bulletPoints[index]}`; // Add each bullet point with a delay
-                typeBulletPoints(index + 1); // Move to the next bullet point
+                terminalContent += `\n${bulletPoints[index]}`;
+                typeBulletPoints(index + 1);
             }, bulletDelay);
         } else {
-            // After all bullet points, show the terminal prompt
             setTimeout(() => {
-                terminalContent += `\n(base) smg@macbook ~ $ `;
+                terminalContent += `\n\n(base) smg@macbook ~ $ `;
+                allowClear = true;
             }, bulletDelay);
         }
+    }
+
+    function clearTerminal() {
+        if (allowClear) {
+            typeClearCommand();
+        }
+    }
+    
+    function typeClearCommand() {
+        const clearCommand = "clear"; // Command without the leading space
+        if (clearCommandIndex === 0) {
+            // Add the initial space before typing the command
+            terminalContent += " ";
+        }
+
+        if (clearCommandIndex < clearCommand.length) {
+            // Append the next character of "clear" to terminalContent
+            terminalContent += clearCommand[clearCommandIndex];
+            clearCommandIndex++;
+            setTimeout(typeClearCommand, typingDelay);
+        } else {
+            // After typing the full command, clear the terminal
+            setTimeout(() => {
+                terminalContent = `(base) smg@macbook ~ $ `;
+                clearCommandIndex = 0;
+                allowClear = false;
+                completeWelcome();
+            }, 500);
+        }
+    }
+
+    function completeWelcome() {
+        dispatch('done');
     }
 </script>
 
@@ -94,7 +134,7 @@ What's something you're looking forward to this winter break?\n`;
 
     .terminal {
         position: absolute;
-        top: 10%;
+        top: 15%;
         left: 10%;
         width: 80%;
         height: 80%;
@@ -202,19 +242,19 @@ What's something you're looking forward to this winter break?\n`;
 
     {#if showReplacement}
         <!-- Render terminal content when showReplacement is true -->
-        <div class="terminal">
+        <div class="terminal" on:click={clearTerminal}>
             <div class="terminal-header">
                 <div class="terminal-buttons">
-                <div class="terminal-button"></div>
-                <div class="terminal-button yellow"></div>
-                <div class="terminal-button green"></div>
+                    <div class="terminal-button"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
                 </div>
                 <span style="margin-left: 10px;">Terminal</span>
             </div>
             <div class="terminal-content">
                 <p>
-                <span>{terminalContent}</span>
-                <span class="cursor"></span>
+                    <span>{terminalContent}</span>
+                    <span class="cursor"></span>
                 </p>
             </div>
         </div>
