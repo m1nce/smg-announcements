@@ -1,28 +1,65 @@
 <script>
-  export let showTerminal = false; // Receive visibility state from parent
+  import { createEventDispatcher } from 'svelte';
+  export let showTerminal = false; // Passed from parent
+  const dispatch = createEventDispatcher();
 
-  let typedText = ''; // State for the typed content
-  const preFilledText = `Last login: Tues Dec 3 12:10:57 on ttys001\n(base) smg@macbook ~ $ `; // Text already displayed
-  const fullText = `git clone https://github.com/m1nce/smg-announcements.git`; // Text to be typed
-  const typingDelay = 100; // Delay between each character (in ms)
-  const startDelay = 500; // Delay before typing starts (in ms)
+  let terminalContent = `Last login: Tues Dec 3 12:10:57 on ttys001\n(base) smg@macbook ~ $ `; // Pre-filled content
+  const commands = [
+    `git clone https://github.com/m1nce/smg-announcements.git`,
+    `cd smg-announcements`,
+    `week10.sh`
+  ]; // Commands to type sequentially
+  let currentCommandIndex = 0; // Track the current command
+  const typingDelay = 30; // Delay between each character (in ms)
+  const startDelay = 750; // Delay before typing starts (in ms)
+  const cloneOutput = `Cloning into 'smg-announcements'...
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0`; // Simulated output for cloning
 
-  function startTyping() {
+  function typeCommand() {
+    let typedText = '';
+    const fullText = commands[currentCommandIndex];
     let index = 0;
 
     const interval = setInterval(() => {
       if (index < fullText.length) {
         typedText += fullText[index]; // Add one character at a time
         index++;
+        terminalContent += fullText[index - 1]; // Update terminal content
       } else {
         clearInterval(interval); // Stop the interval once all text is typed
+
+        if (currentCommandIndex === 0) {
+          // Simulate cloning output after "git clone"
+          setTimeout(() => {
+            terminalContent += `\n${cloneOutput}\n(base) smg@macbook ~ $ `;
+            currentCommandIndex++; // Move to the next command
+            setTimeout(typeCommand, startDelay); // Start typing the next command
+          }, 1000); // Delay before showing cloning output
+        } else {
+          currentCommandIndex++; // Move to the next command
+          if (currentCommandIndex < commands.length) {
+            // Add a newline and prefill prompt before typing the next command
+            terminalContent += `\n(base) smg@macbook ~ $ `;
+            setTimeout(typeCommand, startDelay); // Start typing the next command
+          } else {
+            // Notify parent that the terminal has finished
+            setTimeout(() => {
+              dispatch('hideTerminal'); // Dispatch event to hide the terminal
+              console.log('Terminal finished typing commands');
+            }, 1000); // Delay before dispatching the event
+          }
+        }
       }
     }, typingDelay);
   }
 
-  // Start typing after the terminal is shown
+  // Start typing the first command after the terminal is shown
   $: if (showTerminal) {
-    setTimeout(startTyping, startDelay); // Start typing with a delay
+    setTimeout(() => {
+      typeCommand();
+    }, startDelay);
   }
 </script>
 
@@ -134,8 +171,7 @@
     </div>
     <div class="terminal-content">
       <p>
-        <span>{preFilledText}</span>
-        <span>{typedText}</span>
+        <span>{terminalContent}</span>
         <span class="cursor"></span>
       </p>
     </div>
