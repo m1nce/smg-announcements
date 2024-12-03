@@ -36,12 +36,12 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'build/bundle.js'
+		file: 'build/bundle.js',
 	},
 	plugins: [
 		svelte({
 			compilerOptions: {
-				// enable run-time checks when not in production
+				// Enable run-time checks when not in production
 				dev: !production
 			}
 		}),
@@ -52,15 +52,14 @@ export default {
 		resolve({
 			browser: true,
 			dedupe: ['svelte'],
-			exportConditions: ['svelte']
 		}),
 		commonjs(),
 
-		// Copy static assets from the public folder to the build folder
+		// Copy static assets (excluding `build` itself)
 		copy({
 			targets: [
-				{ src: 'public/*', dest: 'build/' }
-			]
+				{ src: 'public/**/*', dest: 'build/', ignore: ['public/build/**'] }, // Prevent nested build
+			],
 		}),
 
 		// Start a dev server in development mode
@@ -70,9 +69,9 @@ export default {
 		!production && livereload('build'),
 
 		// Minify the output in production mode
-		production && terser()
+		production && terser(),
 	],
 	watch: {
-		clearScreen: false
-	}
+		clearScreen: false,
+	},
 };
