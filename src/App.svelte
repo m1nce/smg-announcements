@@ -8,8 +8,9 @@
   let showWelcome = false; // Controls announcement visibility
 
   function showTerminalOnClick() {
-    if (introCompleted) {
-      showTerminal = true; // Show terminal only if IntroLogo has finished
+    if (introCompleted && !showWelcome) { 
+      // Only show the terminal if the intro is completed and welcome screen is not active
+      showTerminal = true;
     }
   }
 
@@ -25,16 +26,16 @@
 
 <style>
   .app-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    width: 100vw;
-    background-color: #f0f0f0;
-    cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 0; /* Ensure it doesn't interfere with child stacking */
+      overflow: visible; /* Prevent clipping of child elements */
   }
-
 </style>
 
 <div class="app-wrapper" on:click={showTerminalOnClick}>

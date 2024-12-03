@@ -7,7 +7,7 @@
   const commands = [
     `git clone https://github.com/m1nce/smg-announcements.git`,
     `cd smg-announcements`,
-    `week10.sh`
+    `bash intro.sh`
   ]; // Commands to type sequentially
   let currentCommandIndex = 0; // Track the current command
   const typingDelay = 30; // Delay between each character (in ms)
