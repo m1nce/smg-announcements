@@ -7,10 +7,12 @@
 	<title>Week 10 Announcements</title>
 
 	<script>
-		// Dynamically set base path based on environment
-		const isLocal = window.location.hostname === 'localhost';
-		const basePath = isLocal ? '/' : '/smg-announcements/';
-		document.write(`<base href="${basePath}">`);
+		// Dynamically set the base path
+		(function() {
+			const isLocal = window.location.hostname === 'localhost';
+			const basePath = isLocal ? '/' : '/smg-announcements/';
+			document.write(`<base href="${basePath}">`);
+		})();
 	</script>
 
 	<!-- Reference assets relative to the base -->
@@ -18,8 +20,10 @@
 	<link rel="stylesheet" href="build/bundle.css">
 	<script defer src="build/bundle.js"></script>
 
+	<!-- Google Fonts -->
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+	<img src="images/smg_logo.png" alt="Logo">
 </body>
 </html>
