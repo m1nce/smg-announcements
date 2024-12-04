@@ -3,14 +3,16 @@
   import Terminal from './Terminal.svelte';
   import Welcome from './Welcome.svelte';
   import WeeklyEvents from './WeeklyEvents.svelte';
+  import Community from './Community.svelte';
 
   let showTerminal = false; // Controls terminal visibility
   let introCompleted = false; // Tracks whether IntroLogo has finished
   let showWelcome = false; // Controls announcement visibility
   let showWeeklyEvents = false; // Controls weekly events visibility
+  let showCommunity = false;
 
   function showTerminalOnClick() {
-    if (introCompleted && !showWelcome && !showWeeklyEvents) { 
+    if (introCompleted && !showWelcome && !showWeeklyEvents && !showCommunity) { 
       // Only show the terminal if the intro is completed and welcome screen is not active
       showTerminal = true;
     }
@@ -28,6 +30,11 @@
   function handleWelcomeDone() {
     showWelcome = false; 
     showWeeklyEvents = true;
+  }
+
+  function handleWeeklyEventsDone() {
+    showWeeklyEvents = false;
+    showCommunity = true;
   }
 </script>
 
@@ -56,11 +63,15 @@
 
   {#if showWelcome}
     <!-- Render the Welcome Screen -->
-    <Welcome on:done={handleWelcomeDone}/>
+    <Welcome on:done={handleWelcomeDone} />
   {/if}
 
   {#if showWeeklyEvents}
     <!-- Render the Weekly Events -->
-    <WeeklyEvents />
+    <WeeklyEvents on:done={handleWeeklyEventsDone} />
+  {/if}
+
+  {#if showCommunity}
+    <Community />
   {/if}
 </div>
